@@ -1,0 +1,6 @@
+{
+  "name": "Anime & Cartoon Video Converter",
+  "description": "Convert local phone videos into Japanese Anime or 3D Disney/Pixar animated graphics using AI models.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
