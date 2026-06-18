@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.compose)
@@ -146,4 +148,26 @@ tasks.register("copyApkToOutputs") {
         }
     }
 }
+
+val decodeKeystore = tasks.register("decodeKeystore") {
+    doFirst {
+        val base64File = project.rootDir.resolve("debug.keystore.base64")
+        val keystoreFile = project.rootDir.resolve("debug.keystore")
+        if (base64File.exists() && !keystoreFile.exists()) {
+            val base64Content = base64File.readText().replace("\\s".toRegex(), "")
+            val decodedBytes = Base64.getDecoder().decode(base64Content)
+            keystoreFile.writeBytes(decodedBytes)
+            println("****************************************************************")
+            println("SUCCESS: Decoded debug.keystore from base64!")
+            println("****************************************************************")
+        } else if (keystoreFile.exists()) {
+            println("Keystore already decoded and ready.")
+        }
+    }
+}
+
+tasks.matching { it.name == "preBuild" }.all {
+    dependsOn(decodeKeystore)
+}
+
 
