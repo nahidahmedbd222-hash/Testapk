@@ -122,37 +122,38 @@ dependencies {
   "ksp"(libs.moshi.kotlin.codegen)
 }
 
+val rootLocalDir = project.rootDir
+
 tasks.register("copyApkToOutputs") {
     mustRunAfter("assembleDebug")
+    val src = rootLocalDir.resolve("app/build/outputs/apk/debug/app-debug.apk")
+    val dest1 = rootLocalDir.resolve("app-debug.apk")
+    val dest2 = rootLocalDir.resolve("build-outputs/app-debug.apk")
+    val dest3 = rootLocalDir.resolve(".build-outputs/app-debug.apk")
+    
     doLast {
-        val srcFile = file("build/outputs/apk/debug/app-debug.apk")
-        if (srcFile.exists()) {
-            val rootDirFile = project.projectDir.parentFile
-            val dest1 = rootDirFile.resolve("app-debug.apk")
-            val dest2 = rootDirFile.resolve("build-outputs/app-debug.apk")
-            val dest3 = rootDirFile.resolve(".build-outputs/app-debug.apk")
-            
+        if (src.exists()) {
             dest2.parentFile.mkdirs()
             dest3.parentFile.mkdirs()
             
-            srcFile.copyTo(dest1, overwrite = true)
-            srcFile.copyTo(dest2, overwrite = true)
-            srcFile.copyTo(dest3, overwrite = true)
+            src.copyTo(dest1, overwrite = true)
+            src.copyTo(dest2, overwrite = true)
+            src.copyTo(dest3, overwrite = true)
             
             println("****************************************************************")
             println("SUCCESS: Real built APK files cloned to all destination paths!")
-            println("File size: ${srcFile.length()} bytes")
+            println("File size: ${src.length()} bytes")
             println("****************************************************************")
         } else {
-            println("ERROR: Source APK not found at: ${srcFile.absolutePath}")
+            println("ERROR: Source APK not found at: ${src.absolutePath}")
         }
     }
 }
 
 val decodeKeystore = tasks.register("decodeKeystore") {
+    val base64File = rootLocalDir.resolve("debug.keystore.base64")
+    val keystoreFile = rootLocalDir.resolve("debug.keystore")
     doFirst {
-        val base64File = project.rootDir.resolve("debug.keystore.base64")
-        val keystoreFile = project.rootDir.resolve("debug.keystore")
         if (base64File.exists() && !keystoreFile.exists()) {
             val base64Content = base64File.readText().replace("\\s".toRegex(), "")
             val decodedBytes = Base64.getDecoder().decode(base64Content)
